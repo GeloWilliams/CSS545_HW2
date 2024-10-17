@@ -3,10 +3,12 @@ import { View, Image, StyleSheet, Text, Button, ActivityIndicator, Dimensions, S
 import axios from 'axios';
 import * as FileSystem from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTheme } from '../context/ThemeContext';
 
 const STORAGE_KEY = 'cachedImages';
 
 const StoryPage = () => {
+    const { theme } = useTheme();
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -17,9 +19,6 @@ const StoryPage = () => {
 
     const loadImages = async () => {
         setLoading(true);
-        /*
-            try to load cached images if any, otherwise fetch them
-        */
         try {
             const cachedImages = await AsyncStorage.getItem(STORAGE_KEY);
             if (cachedImages) {
@@ -35,14 +34,8 @@ const StoryPage = () => {
         }
     };
 
-    /* fetchAndCacheImages
-        - Use FileSystem to create a directory structure where cached images can be
-        stored (currently in the 'cacheDirectory' location)
-        - Use AsyncStorage to get & set storage keys acting as a manager that maps the
-        remote image addresses to their cached locations locally */
     const fetchAndCacheImages = async () => {
         try {
-            // use created API from website to test response
             const response = await axios.get('https://www.gelostory.com/dd-images.php?endpoint=banners');
             const newImages = await Promise.all(response.data.map(async (img) => {
                 const fileUri = `${FileSystem.cacheDirectory}${img.title}.jpg`;
@@ -50,7 +43,6 @@ const StoryPage = () => {
                 return { uri: fileUri, title: img.title };
             }));
             setImages(newImages);
-            // Cache the new image paths in AsyncStorage
             await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newImages));
         } catch (err) {
             setError('Error fetching images');
@@ -62,28 +54,28 @@ const StoryPage = () => {
 
     if (loading) {
         return (
-            <View style={styles.container}>
-                <ActivityIndicator size="large" color="#0000ff" />
+            <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
+                <ActivityIndicator size="large" color={theme.textColor} />
             </View>
         );
     }
 
     if (error) {
         return (
-            <View style={styles.container}>
-                <Text>{error}</Text>
-                <Button title="Retry" onPress={loadImages} />
+            <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
+                <Text style={{ color: theme.textColor }}>{error}</Text>
+                <Button title="Retry" onPress={loadImages} color={theme.buttonColor} />
             </View>
         );
     }
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
             <ScrollView horizontal pagingEnabled>
                 {images.map((item, index) => (
                     <View key={index} style={styles.carouselItem}>
                         <Image source={{ uri: item.uri }} style={styles.image} />
-                        <Text style={styles.title}>{item.title}</Text>
+                        <Text style={[styles.title, { color: theme.textColor }]}>{item.title}</Text>
                     </View>
                 ))}
             </ScrollView>
@@ -92,7 +84,7 @@ const StoryPage = () => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#fff' },
+    container: { flex: 1 },
     carouselItem: { width: Dimensions.get('window').width, alignItems: 'center' },
     image: { width: '100%', height: 400, resizeMode: 'contain' },
     title: { marginTop: 10, fontSize: 18 },
