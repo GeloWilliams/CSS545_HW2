@@ -12,7 +12,6 @@ const StoryPage = () => {
         setLoading(true);
         try {
             const response = await axios.get('https://www.gelostory.com/dd-images.php?endpoint=banners', {
-                timeout: 10000, // 10 seconds timeout
             });
             // Check if response.data is an array and has items
             if (Array.isArray(response.data) && response.data.length > 0) {
