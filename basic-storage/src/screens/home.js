@@ -10,7 +10,7 @@ const Home = ({ navigation }) => {
     return (
         <View style={[styles.container, { backgroundColor: theme.backgroundColor }]}>
             <Text style={[styles.title, { color: theme.textColor }]}>
-                Simple Webtoon Reader
+                Simple Webtoon Viewer
             </Text>
             <View style={styles.buttonContainer}>
                 <Button
