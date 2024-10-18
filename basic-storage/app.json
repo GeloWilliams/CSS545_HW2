@@ -22,6 +22,11 @@
     },
     "web": {
       "favicon": "./assets/dd_logo_mobile.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a205464e-34a0-468c-a1b8-e39d22b339e4"
+      }
     }
   }
 }
